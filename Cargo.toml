@@ -14,26 +14,17 @@ path = "src/lib.rs"
 name = "iree-tokenizer"
 path = "src/main.rs"
 
-[[bin]]
-name = "bench-compare"
-path = "src/bench_compare.rs"
-required-features = ["bench"]
-
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tokenizers = { version = "0.21", optional = true }
-tiktoken-rs = { version = "0.6", optional = true }
 
 [build-dependencies]
 bindgen = "0.71"
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
-
-[features]
-bench = ["dep:tokenizers", "dep:tiktoken-rs"]
+tokenizers = "0.21"
 
 [[bench]]
 name = "bench_comparison"
