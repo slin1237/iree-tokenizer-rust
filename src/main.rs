@@ -157,7 +157,7 @@ fn cmd_encode(
                     continue;
                 }
                 let text = parse_encode_input(line);
-                encode_one(&tok, &text, seq, rich, add_special_tokens, compact, &mut out);
+                encode_one(tok, &text, seq, rich, add_special_tokens, compact, &mut out);
                 seq += 1;
             }
         }
@@ -170,7 +170,7 @@ fn cmd_encode(
                 acc
             });
             if !all.trim().is_empty() {
-                encode_one(&tok, &all, 0, rich, add_special_tokens, compact, &mut out);
+                encode_one(tok, &all, 0, rich, add_special_tokens, compact, &mut out);
             }
         }
         _ => {
@@ -181,7 +181,7 @@ fn cmd_encode(
                 let stripped = line.trim_end_matches('\n');
                 if stripped.is_empty() && !buf.is_empty() {
                     let text = buf.join("\n");
-                    encode_one(&tok, &text, seq, rich, add_special_tokens, compact, &mut out);
+                    encode_one(tok, &text, seq, rich, add_special_tokens, compact, &mut out);
                     seq += 1;
                     buf.clear();
                 } else {
@@ -190,7 +190,7 @@ fn cmd_encode(
             }
             if !buf.is_empty() {
                 let text = buf.join("\n");
-                encode_one(&tok, &text, seq, rich, add_special_tokens, compact, &mut out);
+                encode_one(tok, &text, seq, rich, add_special_tokens, compact, &mut out);
             }
         }
     }

@@ -70,6 +70,7 @@ impl Tokenizer {
     }
 
     /// Load a tokenizer from a JSON string.
+    #[allow(clippy::should_implement_trait)]
     pub fn from_str(json: &str) -> Result<Self> {
         Self::from_bytes(json.as_bytes())
     }

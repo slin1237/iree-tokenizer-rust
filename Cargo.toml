@@ -13,6 +13,11 @@ path = "src/lib.rs"
 name = "iree-tokenizer"
 path = "src/main.rs"
 
+[[bin]]
+name = "bench-compare"
+path = "src/bench_compare.rs"
+required-features = ["bench"]
+
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }
