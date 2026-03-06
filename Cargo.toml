@@ -25,6 +25,7 @@ bindgen = "0.71"
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
 tokenizers = "0.21"
+ureq = "3"
 
 [[bench]]
 name = "bench_comparison"
