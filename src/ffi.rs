@@ -1,9 +1,16 @@
-#![allow(non_upper_case_globals)]
-#![allow(non_camel_case_types)]
-#![allow(non_snake_case)]
-#![allow(dead_code)]
-#![allow(clippy::all)]
-#![allow(unused_imports)]
+// Bindgen-generated code and FFI declarations — suppress style and restriction lints.
+#![allow(
+    non_upper_case_globals,
+    non_camel_case_types,
+    non_snake_case,
+    dead_code,
+    unused_imports,
+    clippy::all,
+    clippy::absolute_paths,
+    clippy::allow_attributes
+)]
+
+use std::os::raw::c_void;
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
@@ -12,18 +19,16 @@ include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 // Bindgen can't see it because it's not in a header, so we declare it manually.
 unsafe extern "C" {
     pub fn iree_allocator_libc_ctl(
-        self_: *mut ::std::os::raw::c_void,
+        self_: *mut c_void,
         command: iree_allocator_command_t,
-        params: *const ::std::os::raw::c_void,
-        inout_ptr: *mut *mut ::std::os::raw::c_void,
+        params: *const c_void,
+        inout_ptr: *mut *mut c_void,
     ) -> iree_status_t;
 }
 
 /// Returns the IREE transform buffer recommended size (Rust reimplementation
 /// of the C inline function which bindgen cannot generate).
-pub unsafe fn iree_tokenizer_transform_buffer_recommended_size(
-    text_size: usize,
-) -> usize {
+pub unsafe fn iree_tokenizer_transform_buffer_recommended_size(text_size: usize) -> usize {
     let max_size = IREE_TOKENIZER_TRANSFORM_BUFFER_MAX_SIZE as usize;
     let expansion = IREE_TOKENIZER_TRANSFORM_BUFFER_EXPANSION_FACTOR as usize;
     let min_size = IREE_TOKENIZER_TRANSFORM_BUFFER_MIN_SIZE as usize;
@@ -39,9 +44,7 @@ pub unsafe fn iree_tokenizer_transform_buffer_recommended_size(
 }
 
 /// Returns the transform buffer size for one-shot encoding (Rust reimplementation).
-pub unsafe fn iree_tokenizer_transform_buffer_oneshot_size(
-    text_size: usize,
-) -> usize {
+pub unsafe fn iree_tokenizer_transform_buffer_oneshot_size(text_size: usize) -> usize {
     let expansion = IREE_TOKENIZER_TRANSFORM_BUFFER_EXPANSION_FACTOR as usize;
     let min_size = IREE_TOKENIZER_TRANSFORM_BUFFER_MIN_SIZE as usize;
 

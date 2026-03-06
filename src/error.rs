@@ -43,9 +43,7 @@ pub(crate) fn check_status(status: ffi::iree_status_t) -> Result<()> {
     let code = unsafe { ffi::iree_status_consume_code(status) };
     let msg = format_status_message(code);
     match code {
-        ffi::iree_status_code_e::IREE_STATUS_INVALID_ARGUMENT => {
-            Err(Error::InvalidArgument(msg))
-        }
+        ffi::iree_status_code_e::IREE_STATUS_INVALID_ARGUMENT => Err(Error::InvalidArgument(msg)),
         ffi::iree_status_code_e::IREE_STATUS_NOT_FOUND => Err(Error::NotFound(msg)),
         ffi::iree_status_code_e::IREE_STATUS_UNIMPLEMENTED => Err(Error::Unimplemented(msg)),
         ffi::iree_status_code_e::IREE_STATUS_RESOURCE_EXHAUSTED => {
@@ -60,8 +58,7 @@ pub(crate) fn is_resource_exhausted(status: ffi::iree_status_t) -> bool {
     if status.is_null() {
         return false;
     }
-    let code = status as usize
-        & ffi::iree_status_code_e::IREE_STATUS_CODE_MASK as usize;
+    let code = status as usize & ffi::iree_status_code_e::IREE_STATUS_CODE_MASK as usize;
     code == ffi::iree_status_code_e::IREE_STATUS_RESOURCE_EXHAUSTED as usize
 }
 

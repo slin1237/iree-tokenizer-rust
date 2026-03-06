@@ -29,3 +29,81 @@ tokenizers = "0.21"
 [[bench]]
 name = "bench_comparison"
 harness = false
+
+[lints.rust]
+unused_qualifications = "warn"
+
+[lints.clippy]
+# Deny unwrap in production code (tests exempted via clippy.toml)
+unwrap_used = "deny"
+# Deny debug/placeholder macros
+dbg_macro = "deny"
+todo = "deny"
+unimplemented = "deny"
+unreachable = "deny"
+# Print macros — use proper error reporting instead
+print_stdout = "warn"
+print_stderr = "warn"
+# Warn for now — promote to deny after cleanup
+expect_used = "warn"
+panic = "warn"
+# Enforce #[expect] over #[allow] for better lint tracking
+allow_attributes = "warn"
+# Disallowed methods (see clippy.toml for the list)
+disallowed_methods = "warn"
+# Code quality lints
+explicit_iter_loop = "warn"
+explicit_into_iter_loop = "warn"
+semicolon_if_nothing_returned = "warn"
+uninlined_format_args = "warn"
+manual_assert = "warn"
+manual_string_new = "warn"
+inconsistent_struct_constructor = "warn"
+needless_raw_string_hashes = "warn"
+cloned_instead_of_copied = "warn"
+inefficient_to_string = "warn"
+assigning_clones = "warn"
+stable_sort_primitive = "warn"
+unnecessary_wraps = "warn"
+unused_self = "warn"
+if_not_else = "warn"
+match_bool = "warn"
+match_wildcard_for_single_variants = "warn"
+trivially_copy_pass_by_ref = "warn"
+or_fun_call = "warn"
+ignored_unit_patterns = "warn"
+# Import hygiene
+single_component_path_imports = "warn"
+absolute_paths = "warn"
+# Pedantic lints — explicitly allowed for author discretion
+default_trait_access = "allow"
+match_same_arms = "allow"
+must_use_candidate = "allow"
+single_match_else = "allow"
+doc_lazy_continuation = "allow"
+
+[profile.release]
+opt-level = "z"     # Optimize for size
+lto = "fat"         # Full LTO for smaller binaries
+codegen-units = 1   # Better optimization, slower compile
+strip = true        # Strip debug symbols
+
+[profile.dev]
+opt-level = 0
+debug = 1
+split-debuginfo = "unpacked"
+incremental = true
+codegen-units = 256
+
+[profile.dev.package."*"]
+opt-level = 2
+debug = false
+
+[profile.dev.build-override]
+opt-level = 3
+codegen-units = 1
+
+[profile.bench]
+opt-level = 3       # Max speed for benchmarks (release uses "z" for size)
+lto = "thin"        # Good balance of speed and compile time
+codegen-units = 1   # Better optimization

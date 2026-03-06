@@ -1,5 +1,8 @@
-use iree_tokenizer::Tokenizer;
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::path::PathBuf;
+
+use iree_tokenizer::Tokenizer;
 
 fn testdata() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/testdata")

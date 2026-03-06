@@ -1,9 +1,12 @@
-use iree_tokenizer::Tokenizer;
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::path::PathBuf;
 
+use iree_tokenizer::Tokenizer;
+
 fn bpe_tokenizer() -> Tokenizer {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/testdata/bpe_bytelevel_minimal.json");
+    let path =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/testdata/bpe_bytelevel_minimal.json");
     Tokenizer::from_file(path).unwrap()
 }
 

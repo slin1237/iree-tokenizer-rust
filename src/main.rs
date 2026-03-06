@@ -1,11 +1,24 @@
-use std::io::{self, BufRead, Write};
-use std::time::Instant;
+// CLI binary — print macros, process::exit, and unwrap are acceptable here.
+#![allow(
+    clippy::print_stdout,
+    clippy::print_stderr,
+    clippy::unwrap_used,
+    clippy::disallowed_methods
+)]
+
+use std::{
+    io::{self, BufRead, Write},
+    time::Instant,
+};
 
 use clap::{Parser, Subcommand};
 use iree_tokenizer::Tokenizer;
 
 #[derive(Parser)]
-#[command(name = "iree-tokenizer", about = "Streaming tokenizer CLI backed by IREE")]
+#[command(
+    name = "iree-tokenizer",
+    about = "Streaming tokenizer CLI backed by IREE"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -218,7 +231,8 @@ fn encode_one(
                 });
                 if !compact {
                     record["input_chars"] = serde_json::json!(text.len());
-                    record["elapsed_ms"] = serde_json::json!((elapsed_ms * 1000.0).round() / 1000.0);
+                    record["elapsed_ms"] =
+                        serde_json::json!((elapsed_ms * 1000.0).round() / 1000.0);
                 }
                 if let Some(offsets) = &enc.offsets {
                     let offsets_arr: Vec<[usize; 2]> =
@@ -241,7 +255,8 @@ fn encode_one(
                 });
                 if !compact {
                     record["input_chars"] = serde_json::json!(text.len());
-                    record["elapsed_ms"] = serde_json::json!((elapsed_ms * 1000.0).round() / 1000.0);
+                    record["elapsed_ms"] =
+                        serde_json::json!((elapsed_ms * 1000.0).round() / 1000.0);
                 }
                 writeln!(out, "{}", serde_json::to_string(&record).unwrap()).ok();
             }
@@ -274,7 +289,8 @@ fn cmd_decode(tok: &Tokenizer, skip_special_tokens: bool, compact: bool) {
                     "n_tokens": ids.len(),
                 });
                 if !compact {
-                    record["elapsed_ms"] = serde_json::json!((elapsed_ms * 1000.0).round() / 1000.0);
+                    record["elapsed_ms"] =
+                        serde_json::json!((elapsed_ms * 1000.0).round() / 1000.0);
                 }
                 writeln!(out, "{}", serde_json::to_string(&record).unwrap()).ok();
             }

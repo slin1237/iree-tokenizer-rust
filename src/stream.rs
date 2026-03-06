@@ -1,6 +1,10 @@
-use crate::error::{check_status, Error, Result};
-use crate::ffi;
-use crate::tokenizer::Tokenizer;
+use std::os::raw::c_char;
+
+use crate::{
+    error::{check_status, Error, Result},
+    ffi,
+    tokenizer::Tokenizer,
+};
 
 /// Streaming encoder. Feeds text chunks and produces token IDs incrementally.
 pub struct EncodeStream<'a> {
@@ -18,14 +22,12 @@ impl<'a> EncodeStream<'a> {
 
         // Calculate state size.
         let mut state_size: usize = 0;
-        let status = unsafe {
-            ffi::iree_tokenizer_encode_state_calculate_size(tok_ptr, &mut state_size)
-        };
+        let status =
+            unsafe { ffi::iree_tokenizer_encode_state_calculate_size(tok_ptr, &mut state_size) };
         check_status(status)?;
 
         let mut state_storage = vec![0u8; state_size];
-        let transform_size =
-            unsafe { ffi::iree_tokenizer_transform_buffer_recommended_size(8192) };
+        let transform_size = unsafe { ffi::iree_tokenizer_transform_buffer_recommended_size(8192) };
         let mut transform_buffer = vec![0u8; transform_size];
 
         let state_span = ffi::iree_byte_span_t {
@@ -80,7 +82,7 @@ impl<'a> EncodeStream<'a> {
         let mut ids_buf = vec![0i32; batch_size];
 
         let chunk = ffi::iree_string_view_t {
-            data: text.as_ptr() as *const std::os::raw::c_char,
+            data: text.as_ptr() as *const c_char,
             size: text.len(),
         };
         let mut offset = 0usize;
@@ -171,9 +173,8 @@ impl<'a> DecodeStream<'a> {
         let tok_ptr = tokenizer.raw_ptr();
 
         let mut state_size: usize = 0;
-        let status = unsafe {
-            ffi::iree_tokenizer_decode_state_calculate_size(tok_ptr, &mut state_size)
-        };
+        let status =
+            unsafe { ffi::iree_tokenizer_decode_state_calculate_size(tok_ptr, &mut state_size) };
         check_status(status)?;
 
         let mut state_storage = vec![0u8; state_size];
@@ -224,7 +225,7 @@ impl<'a> DecodeStream<'a> {
                 values: unsafe { tokens.values.add(offset) },
             };
             let text_output = ffi::iree_mutable_string_view_t {
-                data: text_buf.as_mut_ptr() as *mut std::os::raw::c_char,
+                data: text_buf.as_mut_ptr() as *mut c_char,
                 size: buf_size,
             };
             let mut tokens_consumed: usize = 0;
@@ -262,7 +263,7 @@ impl<'a> DecodeStream<'a> {
         let buf_size = ffi::IREE_TOKENIZER_DECODE_OUTPUT_RECOMMENDED_SIZE as usize;
         let mut text_buf = vec![0u8; buf_size];
         let text_output = ffi::iree_mutable_string_view_t {
-            data: text_buf.as_mut_ptr() as *mut std::os::raw::c_char,
+            data: text_buf.as_mut_ptr() as *mut c_char,
             size: buf_size,
         };
         let mut text_length: usize = 0;
