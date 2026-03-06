@@ -1,0 +1,34 @@
+[package]
+name = "iree-tokenizer"
+version = "0.1.0"
+edition = "2021"
+description = "Rust bindings for the IREE tokenizer C library"
+license = "Apache-2.0 WITH LLVM-exception"
+
+[lib]
+name = "iree_tokenizer"
+path = "src/lib.rs"
+
+[[bin]]
+name = "iree-tokenizer"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokenizers = { version = "0.21", optional = true }
+tiktoken-rs = { version = "0.6", optional = true }
+
+[build-dependencies]
+bindgen = "0.71"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[features]
+bench = ["dep:tokenizers", "dep:tiktoken-rs"]
+
+[[bench]]
+name = "bench_comparison"
+harness = false
