@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 description = "Rust bindings for the IREE tokenizer C library"
 license = "Apache-2.0 WITH LLVM-exception"
+default-run = "iree-tokenizer"
 
 [lib]
 name = "iree_tokenizer"
