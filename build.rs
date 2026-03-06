@@ -14,8 +14,14 @@ use std::{
 
 fn main() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
-    let iree_source_dir = env::var("IREE_SOURCE_DIR")
-        .unwrap_or_else(|_| "/Users/simolin/opensource/iree".to_string());
+    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    let iree_source_dir = env::var("IREE_SOURCE_DIR").unwrap_or_else(|_| {
+        manifest_dir
+            .join("third_party/iree")
+            .to_str()
+            .expect("CARGO_MANIFEST_DIR contains invalid UTF-8")
+            .to_string()
+    });
     let iree_source = Path::new(&iree_source_dir);
 
     if !iree_source
@@ -23,7 +29,10 @@ fn main() {
         .exists()
     {
         panic!(
-            "IREE source not found at {}. Set IREE_SOURCE_DIR env var.",
+            "IREE source not found at {}. Either:\n\
+             1. Run: git submodule update --init --depth 1 && \
+             cd third_party/iree && git submodule update --init --depth 1 third_party/flatcc\n\
+             2. Set IREE_SOURCE_DIR env var to your IREE checkout",
             iree_source.display()
         );
     }

@@ -14,7 +14,7 @@ else
     $(info sccache not found. Install it for faster builds: cargo install sccache)
 endif
 
-.PHONY: help build test clean docs check fmt pre-commit bench dev-setup \
+.PHONY: help build test clean docs check fmt pre-commit bench submodule dev-setup \
         setup-sccache sccache-stats sccache-clean sccache-stop
 
 help: ## Show this help message
@@ -57,7 +57,12 @@ bench: ## Run benchmarks
 pre-commit: fmt check test ## Run pre-commit checks (fmt + check + test)
 	@echo "Pre-commit checks passed!"
 
-dev-setup: build test ## Set up development environment
+submodule: ## Initialize/update the IREE submodule
+	@echo "Initializing IREE submodule (shallow)..."
+	@git submodule update --init --depth 1
+	@cd third_party/iree && git submodule update --init --depth 1 third_party/flatcc
+
+dev-setup: submodule build test ## Set up development environment
 	@echo "Development environment ready!"
 
 # sccache management targets
