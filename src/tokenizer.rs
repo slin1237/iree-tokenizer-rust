@@ -1,10 +1,11 @@
-use std::fmt;
-use std::path::Path;
+use std::{fmt, os::raw::c_char, path::Path};
 
-use crate::encoding::Encoding;
-use crate::error::{check_status, is_resource_exhausted, Error, Result};
-use crate::ffi;
-use crate::stream::{DecodeStream, EncodeStream};
+use crate::{
+    encoding::Encoding,
+    error::{check_status, is_resource_exhausted, Error, Result},
+    ffi,
+    stream::{DecodeStream, EncodeStream},
+};
 
 /// Safe wrapper around an IREE tokenizer (`iree_tokenizer_t*`).
 ///
@@ -70,7 +71,7 @@ impl Tokenizer {
     }
 
     /// Load a tokenizer from a JSON string.
-    #[allow(clippy::should_implement_trait)]
+    #[expect(clippy::should_implement_trait)]
     pub fn from_str(json: &str) -> Result<Self> {
         Self::from_bytes(json.as_bytes())
     }
@@ -78,7 +79,7 @@ impl Tokenizer {
     /// Load a tokenizer from raw JSON bytes.
     pub fn from_bytes(data: &[u8]) -> Result<Self> {
         let sv = ffi::iree_string_view_t {
-            data: data.as_ptr() as *const std::os::raw::c_char,
+            data: data.as_ptr() as *const c_char,
             size: data.len(),
         };
         let allocator = Self::system_allocator();
@@ -114,7 +115,7 @@ impl Tokenizer {
     pub fn from_tiktoken_bytes(data: &[u8], encoding: &str) -> Result<Self> {
         let config = Self::tiktoken_config_by_name(encoding)?;
         let sv = ffi::iree_string_view_t {
-            data: data.as_ptr() as *const std::os::raw::c_char,
+            data: data.as_ptr() as *const c_char,
             size: data.len(),
         };
         let allocator = Self::system_allocator();
@@ -129,15 +130,14 @@ impl Tokenizer {
         encoding: &str,
     ) -> Result<*const ffi::iree_tokenizer_tiktoken_config_t> {
         let sv = ffi::iree_string_view_t {
-            data: encoding.as_ptr() as *const std::os::raw::c_char,
+            data: encoding.as_ptr() as *const c_char,
             size: encoding.len(),
         };
         let config = unsafe { ffi::iree_tokenizer_tiktoken_config_by_name(sv) };
         if config.is_null() {
             return Err(Error::InvalidArgument(format!(
-                "Unknown tiktoken encoding '{}'. Supported: cl100k_base, o200k_base, \
-                 o200k_harmony, r50k_base, gpt2, p50k_base, p50k_edit",
-                encoding
+                "Unknown tiktoken encoding '{encoding}'. Supported: cl100k_base, o200k_base, \
+                 o200k_harmony, r50k_base, gpt2, p50k_base, p50k_edit"
             )));
         }
         Ok(config)
@@ -199,13 +199,7 @@ impl Tokenizer {
         loop {
             let mut ids = vec![0i32; capacity];
             let mut offsets_buf = if track_offsets {
-                vec![
-                    ffi::iree_tokenizer_offset_t {
-                        start: 0,
-                        end: 0
-                    };
-                    capacity
-                ]
+                vec![ffi::iree_tokenizer_offset_t { start: 0, end: 0 }; capacity]
             } else {
                 Vec::new()
             };
@@ -242,12 +236,7 @@ impl Tokenizer {
             type_ids_buf.truncate(token_count);
             let offsets = if track_offsets {
                 offsets_buf.truncate(token_count);
-                Some(
-                    offsets_buf
-                        .iter()
-                        .map(|o| (o.start, o.end))
-                        .collect(),
-                )
+                Some(offsets_buf.iter().map(|o| (o.start, o.end)).collect())
             } else {
                 None
             };
@@ -260,11 +249,7 @@ impl Tokenizer {
     }
 
     /// Encode multiple texts in a single batch call.
-    pub fn encode_batch(
-        &self,
-        texts: &[&str],
-        add_special_tokens: bool,
-    ) -> Result<Vec<Vec<i32>>> {
+    pub fn encode_batch(&self, texts: &[&str], add_special_tokens: bool) -> Result<Vec<Vec<i32>>> {
         if texts.is_empty() {
             return Ok(Vec::new());
         }
@@ -272,9 +257,8 @@ impl Tokenizer {
 
         // Calculate state and transform buffer sizes.
         let mut state_size: usize = 0;
-        let status = unsafe {
-            ffi::iree_tokenizer_encode_state_calculate_size(self.ptr, &mut state_size)
-        };
+        let status =
+            unsafe { ffi::iree_tokenizer_encode_state_calculate_size(self.ptr, &mut state_size) };
         check_status(status)?;
 
         let max_text_len = texts.iter().map(|t| t.len()).max().unwrap_or(0);
@@ -377,7 +361,7 @@ impl Tokenizer {
         loop {
             let mut buf = vec![0u8; capacity];
             let text_output = ffi::iree_mutable_string_view_t {
-                data: buf.as_mut_ptr() as *mut std::os::raw::c_char,
+                data: buf.as_mut_ptr() as *mut c_char,
                 size: capacity,
             };
             let mut text_length: usize = 0;
@@ -416,9 +400,8 @@ impl Tokenizer {
 
         // Calculate state size.
         let mut state_size: usize = 0;
-        let status = unsafe {
-            ffi::iree_tokenizer_decode_state_calculate_size(self.ptr, &mut state_size)
-        };
+        let status =
+            unsafe { ffi::iree_tokenizer_decode_state_calculate_size(self.ptr, &mut state_size) };
         check_status(status)?;
 
         let mut state_storage = vec![0u8; state_size];
@@ -427,8 +410,7 @@ impl Tokenizer {
             data_length: state_storage.len(),
         };
 
-        let mut capacities: Vec<usize> =
-            token_id_lists.iter().map(|t| t.len() * 4 + 64).collect();
+        let mut capacities: Vec<usize> = token_id_lists.iter().map(|t| t.len() * 4 + 64).collect();
         let mut all_bufs: Vec<Vec<u8>> = capacities.iter().map(|&c| vec![0u8; c]).collect();
 
         loop {
@@ -441,7 +423,7 @@ impl Tokenizer {
                         values: tokens.as_ptr(),
                     },
                     text_output: ffi::iree_mutable_string_view_t {
-                        data: all_bufs[i].as_mut_ptr() as *mut std::os::raw::c_char,
+                        data: all_bufs[i].as_mut_ptr() as *mut c_char,
                         size: capacities[i],
                     },
                     out_text_length: 0,
@@ -470,9 +452,8 @@ impl Tokenizer {
             let mut results = Vec::with_capacity(token_id_lists.len());
             for (i, item) in items.iter().enumerate() {
                 let buf = &all_bufs[i][..item.out_text_length];
-                let s = String::from_utf8(buf.to_vec()).map_err(|e| {
-                    Error::Internal(format!("invalid UTF-8 in decode output: {e}"))
-                })?;
+                let s = String::from_utf8(buf.to_vec())
+                    .map_err(|e| Error::Internal(format!("invalid UTF-8 in decode output: {e}")))?;
                 results.push(s);
             }
             return Ok(results);
@@ -513,7 +494,11 @@ impl Tokenizer {
         let vocab = unsafe { ffi::iree_tokenizer_vocab(self.ptr) };
         let sv = Self::make_string_view(token);
         let id = unsafe { ffi::iree_tokenizer_vocab_lookup(vocab, sv) };
-        if id < 0 { None } else { Some(id) }
+        if id < 0 {
+            None
+        } else {
+            Some(id)
+        }
     }
 
     /// Look up a token ID and return its string, or None if out of range.
@@ -571,7 +556,11 @@ impl Tokenizer {
         let vocab = unsafe { ffi::iree_tokenizer_vocab(self.ptr) };
         let ids = unsafe { ffi::iree_tokenizer_vocab_special_ids(vocab) };
         let id = f(&ids);
-        if id < 0 { None } else { Some(id) }
+        if id < 0 {
+            None
+        } else {
+            Some(id)
+        }
     }
 
     // -----------------------------------------------------------------------
@@ -584,19 +573,21 @@ impl Tokenizer {
 
     fn make_string_view(s: &str) -> ffi::iree_string_view_t {
         ffi::iree_string_view_t {
-            data: s.as_ptr() as *const std::os::raw::c_char,
+            data: s.as_ptr() as *const c_char,
             size: s.len(),
         }
     }
 
     fn encode_flags(add_special_tokens: bool, track_offsets: bool) -> u32 {
-        let mut flags = ffi::iree_tokenizer_encode_flag_bits_e::IREE_TOKENIZER_ENCODE_FLAG_NONE
-            as u32;
+        let mut flags =
+            ffi::iree_tokenizer_encode_flag_bits_e::IREE_TOKENIZER_ENCODE_FLAG_NONE as u32;
         if add_special_tokens {
             flags |= ffi::iree_tokenizer_encode_flag_bits_e::IREE_TOKENIZER_ENCODE_FLAG_ADD_SPECIAL_TOKENS as u32;
         }
         if track_offsets {
-            flags |= ffi::iree_tokenizer_encode_flag_bits_e::IREE_TOKENIZER_ENCODE_FLAG_TRACK_OFFSETS as u32;
+            flags |=
+                ffi::iree_tokenizer_encode_flag_bits_e::IREE_TOKENIZER_ENCODE_FLAG_TRACK_OFFSETS
+                    as u32;
         }
         flags
     }

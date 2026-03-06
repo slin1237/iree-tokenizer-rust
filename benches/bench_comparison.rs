@@ -1,5 +1,8 @@
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
+#![allow(clippy::unwrap_used, clippy::semicolon_if_nothing_returned)]
+
 use std::path::PathBuf;
+
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 
 const SHORT_TEXT: &str = "The quick brown fox jumps over the lazy dog.";
 
@@ -21,11 +24,7 @@ fn bench_encode(c: &mut Criterion) {
 
     let medium = medium_text();
     let long = long_text();
-    let corpora: &[(&str, &str)] = &[
-        ("short", SHORT_TEXT),
-        ("medium", &medium),
-        ("long", &long),
-    ];
+    let corpora: &[(&str, &str)] = &[("short", SHORT_TEXT), ("medium", &medium), ("long", &long)];
 
     // IREE
     if let Ok(tok) = iree_tokenizer::Tokenizer::from_file(&tokenizer_path) {
@@ -54,11 +53,7 @@ fn bench_decode(c: &mut Criterion) {
 
     let medium = medium_text();
     let long = long_text();
-    let corpora: &[(&str, &str)] = &[
-        ("short", SHORT_TEXT),
-        ("medium", &medium),
-        ("long", &long),
-    ];
+    let corpora: &[(&str, &str)] = &[("short", SHORT_TEXT), ("medium", &medium), ("long", &long)];
 
     // IREE
     if let Ok(tok) = iree_tokenizer::Tokenizer::from_file(&tokenizer_path) {

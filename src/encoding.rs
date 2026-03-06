@@ -1,3 +1,5 @@
+use std::fmt;
+
 /// Rich encoding result with token IDs, byte offsets, and type IDs.
 #[derive(Debug, Clone)]
 pub struct Encoding {
@@ -22,8 +24,8 @@ impl Encoding {
     }
 }
 
-impl std::fmt::Display for Encoding {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for Encoding {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Encoding(n_tokens={})", self.len())
     }
 }

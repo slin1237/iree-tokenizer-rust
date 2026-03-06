@@ -1,5 +1,8 @@
-use iree_tokenizer::Tokenizer;
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::path::PathBuf;
+
+use iree_tokenizer::Tokenizer;
 
 fn testdata() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/testdata")
@@ -55,7 +58,10 @@ fn test_tiktoken_encode_decode_roundtrip() {
     let tok = tiktoken_tokenizer();
     let text = "Hello world";
     let ids = tok.encode(text, false).unwrap();
-    assert_eq!(ids, vec![72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100]);
+    assert_eq!(
+        ids,
+        vec![72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100]
+    );
     let decoded = tok.decode(&ids, false).unwrap();
     assert_eq!(decoded, text);
 }

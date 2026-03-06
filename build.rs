@@ -1,6 +1,16 @@
-use std::env;
-use std::path::{Path, PathBuf};
-use std::process::Command;
+// Build scripts are expected to panic on failure — these lints don't apply here.
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::manual_assert
+)]
+
+use std::{
+    env,
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 fn main() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
@@ -8,7 +18,10 @@ fn main() {
         .unwrap_or_else(|_| "/Users/simolin/opensource/iree".to_string());
     let iree_source = Path::new(&iree_source_dir);
 
-    if !iree_source.join("runtime/src/iree/tokenizer/tokenizer.h").exists() {
+    if !iree_source
+        .join("runtime/src/iree/tokenizer/tokenizer.h")
+        .exists()
+    {
         panic!(
             "IREE source not found at {}. Set IREE_SOURCE_DIR env var.",
             iree_source.display()
@@ -80,11 +93,9 @@ fn main() {
     // Generate FFI bindings with bindgen.
     let tokenizer_h = iree_source.join("runtime/src/iree/tokenizer/tokenizer.h");
     let types_h = iree_source.join("runtime/src/iree/tokenizer/types.h");
-    let hf_json_h = iree_source.join(
-        "runtime/src/iree/tokenizer/format/huggingface/tokenizer_json.h",
-    );
-    let tiktoken_h =
-        iree_source.join("runtime/src/iree/tokenizer/format/tiktoken/tiktoken.h");
+    let hf_json_h =
+        iree_source.join("runtime/src/iree/tokenizer/format/huggingface/tokenizer_json.h");
+    let tiktoken_h = iree_source.join("runtime/src/iree/tokenizer/format/tiktoken/tiktoken.h");
     let vocab_h = iree_source.join("runtime/src/iree/tokenizer/vocab/vocab.h");
 
     let bindings = bindgen::Builder::default()
@@ -92,10 +103,7 @@ fn main() {
         .header(hf_json_h.to_str().unwrap())
         .header(tiktoken_h.to_str().unwrap())
         .header(vocab_h.to_str().unwrap())
-        .clang_arg(format!(
-            "-I{}",
-            iree_source.join("runtime/src").display()
-        ))
+        .clang_arg(format!("-I{}", iree_source.join("runtime/src").display()))
         // Allow the tokenizer and base types we need.
         .allowlist_function("iree_tokenizer_.*")
         .allowlist_function("iree_allocator_system")
@@ -145,10 +153,7 @@ fn link_iree_libs(build_dir: &Path) {
             if ext == "a" {
                 if let Some(parent) = entry.parent() {
                     if lib_dirs.insert(parent.to_path_buf()) {
-                        println!(
-                            "cargo:rustc-link-search=native={}",
-                            parent.display()
-                        );
+                        println!("cargo:rustc-link-search=native={}", parent.display());
                     }
                 }
                 // Extract library name from filename: libfoo.a -> foo
