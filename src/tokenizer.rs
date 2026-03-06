@@ -610,6 +610,15 @@ impl Tokenizer {
     }
 }
 
+impl fmt::Debug for Tokenizer {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Tokenizer")
+            .field("model_type", &self.model_type())
+            .field("vocab_size", &self.vocab_size())
+            .finish()
+    }
+}
+
 impl fmt::Display for Tokenizer {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
