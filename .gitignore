@@ -16,6 +16,9 @@ target
 # IREE submodule build artifacts (if cmake runs in-tree by accident)
 third_party/iree/build/
 
+# Downloaded test tokenizers (cached, not committed)
+tests/testdata/.cache/
+
 # RustRover
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore

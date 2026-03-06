@@ -14,7 +14,7 @@ else
     $(info sccache not found. Install it for faster builds: cargo install sccache)
 endif
 
-.PHONY: help build test clean docs check fmt pre-commit bench submodule dev-setup \
+.PHONY: help build test clean docs check fmt lint pre-commit bench submodule dev-setup \
         setup-sccache sccache-stats sccache-clean sccache-stop
 
 help: ## Show this help message
@@ -28,7 +28,9 @@ build: ## Build the project in release mode
 	@echo "Building iree-tokenizer..."
 	@cargo build --release
 
-test: ## Run all tests
+lint: fmt check ## Run formatting and clippy
+
+test: lint ## Run all tests (lint first)
 	@echo "Running tests..."
 	@cargo test
 
@@ -54,7 +56,7 @@ bench: ## Run benchmarks
 	@echo "Running benchmarks..."
 	@cargo bench
 
-pre-commit: fmt check test ## Run pre-commit checks (fmt + check + test)
+pre-commit: lint test ## Run pre-commit checks (lint + test)
 	@echo "Pre-commit checks passed!"
 
 submodule: ## Initialize/update the IREE submodule
