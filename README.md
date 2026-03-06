@@ -14,19 +14,30 @@ Rust bindings for the [IREE](https://github.com/iree-org/iree) tokenizer C libra
 
 ## Prerequisites
 
-- [IREE source tree](https://github.com/iree-org/iree) checked out locally
 - CMake and Ninja
 - A C/C++ compiler (clang or gcc)
 - libclang (for bindgen)
 
 ## Building
 
-The build system compiles the IREE tokenizer C library from source via CMake, then generates Rust FFI bindings with bindgen.
+The build system compiles the IREE tokenizer C library from source via CMake, then generates Rust FFI bindings with bindgen. The IREE source tree is included as a git submodule.
 
 ```bash
-# Point to your IREE checkout (defaults to /Users/simolin/opensource/iree)
-export IREE_SOURCE_DIR=/path/to/iree
+# Clone and initialize submodules
+git clone https://github.com/lightseekorg/iree-tokenizer-rust.git
+cd iree-tokenizer-rust
+git submodule update --init --depth 1
+cd third_party/iree && git submodule update --init --depth 1 third_party/flatcc && cd ../..
 
+cargo build
+```
+
+### Using a custom IREE checkout
+
+To build against a local IREE source tree instead of the submodule:
+
+```bash
+export IREE_SOURCE_DIR=/path/to/iree
 cargo build
 ```
 
